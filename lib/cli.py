@@ -33,7 +33,7 @@ def main_menu():
         elif choice == "3":
             manage_borrow_records()
         elif choice == "4":
-            print("Thank yoiu for using the Library Management System. Goodbye")
+            print("Thank you for using the Library Management System. Goodbye")
             break
         else:
             print("Invalid choice, please choose a number between 1-4.")
@@ -173,7 +173,7 @@ def view_all_members_who_borrowed_a_specific_book():
             else:
                 print("No borrow recrods found for this book.")
         else:
-            print("No book foudn with the given criteria.")
+            print("No book found with the given criteria.")
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
