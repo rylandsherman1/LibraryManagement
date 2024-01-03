@@ -1,7 +1,14 @@
+
+from Members import create_member as create_member_db
+from Members import delete_member as delete_member_db
+from Members import get_all_members, find_member_by_id, find_member_by_name, find_member_by_email
 from sqlalchemy.orm import Session
 from .database import SessionLocal
 from .models.Book import find_book_by_isbn, find_books_by_title, create_book
 from .models.BorrowRecord import get_borrow_records_by_book_id
+
+from Book import delete_book as delete_book_db
+from BorrowRecord import delete_borrow_record as delete_borrow_record_db
 
 
 def main_menu():
@@ -87,7 +94,7 @@ def delete_book():
     book_id = input("Enter the book ID to delete: ")
     db = SessionLocal()
     try:
-        if delete_book(db, int(book_id)):
+        if delete_book_db(db, int(book_id)):
             print("Book deleted from database.")
         else:
             print("Book not found.")
@@ -199,27 +206,105 @@ def manage_members():
 
 def register_member():
     # prompt for member details and add to the database
-    print("Register Member functionality not yet implemented")
+    print("Register New Member: ")
+    name = input("Enter Member's Name: ")
+    email = input("Enter Member's Email: ")
+    membership_number = input(
+        "Enter membership number: "
+    )  # should this be automatically generated?
+
+    member_data = {
+        "name": name,
+        "email": email,
+        "membership_number": membership_number,
+    }
+
+    db = SessionLocal()
+    try:
+        new_member = create_member_db(db, member_data)
+        print(f"Member added: {new_member.name} with email {new_member.email}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        db.close()
+
 
 
 def delete_member():
     # prompt for member identifiers and delete them from the database
-    print("Delete Member functionality not yet implemented")
+    member_id = input("Enter the member ID to delete: ")
+    db = SessionLocal()
+    try:
+        if delete_member_db(db, int(member_id)):
+            print("Member deleted from database.")
+        else:
+            print("Member not found.")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid member ID.")
+    finally:
+        db.close()
+
 
 
 def view_all_members():
     # display all members from the database
-    print("View All Members functionality not yet implemented")
-
+    db = SessionLocal()
+    try:
+        members = get_all_members(db)
+        for member in members:
+            print(f"{member.id}: {member.name} - {member.email}")
+    finally:
+        db.close()
 
 def find_member():
     # prompt user to enter search criteria (membership number, name, email )
-    print("Find Member functionality not yet implemented")
+    search_option = input("Seach by (1) ID, (2) Name, or (3) Email: ")
+    db = SessionLocal()
+    try:
+        if search_option == "1":
+            member_id = input("Enter memver ID: ")
+            member = find_member_by_id(db, int(member_id))
+        elif search_option == "2":
+            name = input("Enter member name: ")
+            member = find_member_by_name(db, name)
+        elif search_option == "3":
+            email = input("Enter member email: ")
+            member = find_member_by_email(db, email)
+        else:
+            print("Invalid option.")
+            return
+
+        if member:
+            print(f"Found Member: {member.name} with email {member.email}")
+        else:
+            print("No member found with the given criteria.")
+    except ValueError:
+        print("Invalid input.")
+    finally:
+        db.close()
+
 
 
 def find_all_books_borrowed_by_member():
     # prompt user to enter search criteria (membership number, name, email )
-    print("Find All Books Borrowed By Member functionality not yet implemented")
+    member_id = input("Enter the member ID: ")
+    db = SessionLocal()
+    try:
+        borrow_records = get_borrow_records_by_member_id(db, int(member.id))
+        if borrow_records:
+            print(f"Books borrowed by Member ID {member_id}: ")
+            for record in borrow_records:
+                book = find_book_by_id(db, record.book_id)
+                print(
+                    f"Book ID: {book.id}, Title: {book.title}, Borrow Date: {record.borrow_date}"
+                )
+        else:
+            print("No borrow records found for this member.")
+    except ValueError:
+        print("Invalid input. Please enter a valid member ID.")
+    finally:
+        db.close()
 
 
 def manage_borrow_records():
