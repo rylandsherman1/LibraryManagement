@@ -21,9 +21,10 @@ from .models.BorrowRecord import (
     get_borrow_records_by_book_id,
     get_all_borrow_records,
     get_borrow_records_by_member_id,
-    delete_borrow_record,  # Direct import without alias
-    create_borrow_record,  # Direct import without alias
+    delete_borrow_record as delete_borrow_record_func,  # Renamed import
+    create_borrow_record as create_borrow_record_func,  # Renamed import
 )
+
 
 from .models.Book import delete_book as delete_book_db
 from .models import BorrowRecord
@@ -75,7 +76,7 @@ def manage_books():
         elif choice == "4":
             find_book()
         elif choice == "5":
-            view_all_members_who_borrowed_a_specific_book
+            view_all_members_who_borrowed_a_specific_book()
         elif choice == "6":
             break
         else:
@@ -183,39 +184,44 @@ def find_book():
 
 
 def view_all_members_who_borrowed_a_specific_book():
-    # prompt user to enter search criteria (ISBN, title, author )
+    # prompt user to enter search criteria (ISBN, title)
     print("\nView All Members Who Borrowed A Specific Book")
 
-    search_option = input("search by (1) ISBN or (2) Title: ")
+    search_option = input("Search by (1) ISBN or (2) Title: ")
     db = SessionLocal()
 
     try:
         if search_option == "1":
             isbn = input("Enter ISBN: ")
             book = find_book_by_isbn(db, isbn)
+            if book:
+                display_borrow_records_for_book(db, book)
+            else:
+                print("No book found with the given ISBN.")
         elif search_option == "2":
             title = input("Enter book title: ")
-            book = find_books_by_title(db, title)
+            books = find_books_by_title(db, title)
+            if books:
+                for book in books:
+                    display_borrow_records_for_book(db, book)
+            else:
+                print("No books found with the given title.")
         else:
             print("Invalid Option.")
-            return
-
-        if book:
-            borrow_records = get_borrow_records_by_book_id(db, book.id)
-            if borrow_records:
-                print(f"\nMembers who borrowed '{book.title}':")
-                for record in borrow_records:
-                    print(
-                        f"Member ID: {record.member.id} | Borrow Date: {record.borrow_date}"
-                    )
-            else:
-                print("No borrow recrods found for this book.")
-        else:
-            print("No book found with the given criteria.")
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
-        db.close
+        db.close()
+
+
+def display_borrow_records_for_book(db, book):
+    borrow_records = get_borrow_records_by_book_id(db, book.id)
+    if borrow_records:
+        print(f"\nMembers who borrowed '{book.title}':")
+        for record in borrow_records:
+            print(f"Member ID: {record.member.id} | Borrow Date: {record.borrow_date}")
+    else:
+        print(f"No borrow records found for '{book.title}'.")
 
 
 def manage_members():
@@ -385,9 +391,8 @@ def create_borrow_record():
         borrow_data = {
             "book_id": int(book_id),
             "member_id": int(member_id),
-            # Add more fields if necessary
         }
-        create_borrow_record(db, borrow_data)  # Updated function call
+        create_borrow_record_func(db, borrow_data)  # Using the renamed function
         print("Borrow record created successfully.")
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -400,7 +405,7 @@ def delete_borrow_record():
 
     db = SessionLocal()
     try:
-        if delete_borrow_record(db, int(record_id)):  # Updated function call
+        if delete_borrow_record_func(db, int(record_id)):  # Using the renamed function
             print("Borrow record deleted successfully.")
         else:
             print("Borrow record not found.")

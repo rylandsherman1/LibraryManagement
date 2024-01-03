@@ -1,8 +1,9 @@
 from .database import SessionLocal
-from .models.Book import create_book
+from .models.Book import create_book, Book
 from .models.Members import create_member
 from .models.BorrowRecord import create_borrow_record
 import datetime
+from sqlalchemy.exc import IntegrityError
 
 
 def seed_books(db):
@@ -101,7 +102,12 @@ def seed_books(db):
     ]
 
     for book_data in books:
-        create_book(db, book_data)
+        existing_book = db.query(Book).filter_by(isbn=book_data["isbn"]).first()
+        if not existing_book:
+            try:
+                create_book(db, book_data)
+            except Exception as e:
+                print(f"Error occurred while adding book {book_data['title']}: {e}")
 
 
 def seed_members(db):
@@ -185,7 +191,13 @@ def seed_members(db):
     ]
 
     for member_data in members:
-        create_member(db, member_data)
+        try:
+            create_member(db, member_data)
+        except IntegrityError:
+            print(
+                f"Member with membership number {member_data['membership_number']} already exists."
+            )
+            db.rollback()  # Rollback the transaction to avoid transaction block
 
 
 def seed_borrow_records(db):
