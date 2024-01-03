@@ -17,7 +17,13 @@ from .models.Book import (
     find_books_by_title,
     find_books_by_author,
 )
-from .models.BorrowRecord import get_borrow_records_by_book_id, get_borrow_records_by_member_id
+from .models.BorrowRecord import (
+    get_borrow_records_by_book_id,
+    get_all_borrow_records,
+    get_borrow_records_by_member_id,
+    delete_borrow_record as delete_borrow_record_func,  # Renamed import
+    create_borrow_record as create_borrow_record_func,  # Renamed import
+)
 
 from .models.Book import delete_book as delete_book_db
 from .models.BorrowRecord import delete_borrow_record as delete_borrow_record_db
@@ -386,15 +392,15 @@ def manage_borrow_records():
         choice = input("Enter your choice (1-6): ")
 
         if choice == "1":
-            create_borrow_record_cli()
+            create_borrow_record()
         elif choice == "2":
-            delete_borrow_record_cli()
+            delete_borrow_record()
         elif choice == "3":
-            view_all_borrow_records_cli()
+            view_all_borrow_records()
         elif choice == "4":
-            view_books_borrowed_by_member_cli()
+            view_books_borrowed_by_member()
         elif choice == "5":
-            view_members_who_borrowed_book_cli()
+            view_members_who_borrowed_book()
         elif choice == "6":
             break
         else:
@@ -407,14 +413,11 @@ def create_borrow_record():
 
     db = SessionLocal()
     try:
-        create_borrow_record(
-            db,
-            {
-                "book_id": int(book_id),
-                "member_id": int(member_id),
-                # "return_date": You can add this if you want to set a return date upon record creation
-            },
-        )
+        borrow_data = {
+            "book_id": int(book_id),
+            "member_id": int(member_id),
+        }
+        create_borrow_record_func(db, borrow_data)  # Using the renamed function
         print("Borrow record created successfully.")
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -427,7 +430,7 @@ def delete_borrow_record():
 
     db = SessionLocal()
     try:
-        if delete_borrow_record(db, int(record_id)):
+        if delete_borrow_record_func(db, int(record_id)):  # Using the renamed function
             print("Borrow record deleted successfully.")
         else:
             print("Borrow record not found.")
