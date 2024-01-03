@@ -1,7 +1,8 @@
 from Book import create_book
 from sqlalchemy.orm import Session
 from database import SessionLocal
-
+from Book import find_book_by_isbn, find_book_by_title
+from BorrowRecord import get_borrow_records_by_book_id
 
 
 def main_menu():
@@ -131,7 +132,37 @@ def find_book():
     
 def view_all_members_who_borrowed_a_specific_book():
     #prompt user to enter search criteria (ISBN, title, author )
-    print("View All Members Who Borrowed A Specific Book functionality not yet implemented")
+    print("\nView All Members Who Borrowed A Specific Book")
+    
+    search_option = input("search by (1) ISBN or (2) Title: ")
+    db = SessionLocal()
+    
+    try:
+        if search_option == '1':
+            isbn = input("Enter ISBN: ")
+            book = find_book_by_isbn(db, isbn)
+        elif search_option == '2':
+            title = input("Enter book title: ")
+            book = find_book_by_title(db, title)
+        else:
+            print("Invalid Option.")
+            return
+        
+        if book:
+            borrow_records = get_borrow_records_by_book_id(db, book.id)
+            if borrow_records:
+                print(f"\nMembers who borrowed '{book.title}':")
+                for record in borrow_records:
+                    print(f"Member ID: {record.member.id} | Borrow Date: {record.borrow_date}")
+            else:
+                print("No borrow recrods found for this book.")
+        else:
+            print("No book foudn with the given criteria.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        db.close
+                
     
 def manage_members():
     while True:
