@@ -1,5 +1,5 @@
-from lib.database import init_db, SessionLocal
-from lib.cli import main_menu
+from .database import init_db, SessionLocal
+from .cli import main_menu
 
 
 def main():
