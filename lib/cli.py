@@ -1,14 +1,18 @@
-
-from Members import create_member as create_member_db
-from Members import delete_member as delete_member_db
-from Members import get_all_members, find_member_by_id, find_member_by_name, find_member_by_email
+from .models.Members import create_member as create_member_db
+from .models.Members import delete_member as delete_member_db
+from .models.Members import (
+    get_all_members,
+    find_member_by_id,
+    find_member_by_name,
+    find_member_by_email,
+)
 from sqlalchemy.orm import Session
 from .database import SessionLocal
 from .models.Book import find_book_by_isbn, find_books_by_title, create_book
 from .models.BorrowRecord import get_borrow_records_by_book_id
 
-from Book import delete_book as delete_book_db
-from BorrowRecord import delete_borrow_record as delete_borrow_record_db
+from .models.Book import delete_book as delete_book_db
+from .models.BorrowRecord import delete_borrow_record as delete_borrow_record_db
 
 
 def main_menu():
@@ -29,7 +33,7 @@ def main_menu():
         elif choice == "3":
             manage_borrow_records()
         elif choice == "4":
-            print("Thank yoiu for using the Library Management System. Goodbye")
+            print("Thank you for using the Library Management System. Goodbye")
             break
         else:
             print("Invalid choice, please choose a number between 1-4.")
@@ -169,7 +173,7 @@ def view_all_members_who_borrowed_a_specific_book():
             else:
                 print("No borrow recrods found for this book.")
         else:
-            print("No book foudn with the given criteria.")
+            print("No book found with the given criteria.")
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
@@ -229,7 +233,6 @@ def register_member():
         db.close()
 
 
-
 def delete_member():
     # prompt for member identifiers and delete them from the database
     member_id = input("Enter the member ID to delete: ")
@@ -246,7 +249,6 @@ def delete_member():
         db.close()
 
 
-
 def view_all_members():
     # display all members from the database
     db = SessionLocal()
@@ -256,6 +258,7 @@ def view_all_members():
             print(f"{member.id}: {member.name} - {member.email}")
     finally:
         db.close()
+
 
 def find_member():
     # prompt user to enter search criteria (membership number, name, email )
@@ -283,7 +286,6 @@ def find_member():
         print("Invalid input.")
     finally:
         db.close()
-
 
 
 def find_all_books_borrowed_by_member():
