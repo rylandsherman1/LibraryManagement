@@ -1,5 +1,5 @@
-from lib.database import SessionLocal
-from lib.models.Book import create_book, get_all_books
+from .database import SessionLocal
+from .models.Book import create_book, get_all_books
 
 
 def test_database_operations():
