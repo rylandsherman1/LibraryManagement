@@ -8,7 +8,12 @@ from .models.Members import (
 )
 from sqlalchemy.orm import Session
 from .database import SessionLocal
-from .models.Book import find_book_by_isbn, find_books_by_title, create_book
+from .models.Book import (
+    find_book_by_isbn,
+    find_books_by_title,
+    create_book,
+    get_all_books,
+)
 from .models.BorrowRecord import get_borrow_records_by_book_id
 
 from .models.Book import delete_book as delete_book_db
@@ -18,7 +23,7 @@ from .models.BorrowRecord import delete_borrow_record as delete_borrow_record_db
 def main_menu():
     while True:
         print("\nWelcome to the Library Management System!\n")
-        print("Please choos an option:")
+        print("Please choose an option:")
         print("1. Manage Books")
         print("2. Manage Members")
         print("3. Manage Borrow Records")

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, relationship
 from lib.database import Base
 
 
@@ -11,6 +11,8 @@ class Book(Base):
     author = Column(String, index=True)
     isbn = Column(String, unique=True)
     available_copies = Column(Integer, default=1)
+
+    borrow_records = relationship("BorrowRecord", back_populates="book")
 
 
 def create_book(db: Session, book_data: dict):
