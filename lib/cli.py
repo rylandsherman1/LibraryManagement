@@ -1,12 +1,13 @@
-from Book import create_book, find_book_by_isbn, find_book_by_title, find_book_by_id
-from BorrowRecord import get_borrow_records_by_book_id, get_borrow_records_by_member_id
+
 from Members import create_member as create_member_db
 from Members import delete_member as delete_member_db
 from Members import get_all_members, find_member_by_id, find_member_by_name, find_member_by_email
 from sqlalchemy.orm import Session
-from database import SessionLocal
+from .database import SessionLocal
+from .models.Book import find_book_by_isbn, find_books_by_title, create_book
+from .models.BorrowRecord import get_borrow_records_by_book_id
 
-from Book import detel_book as delete_book_db
+from Book import delete_book as delete_book_db
 from BorrowRecord import delete_borrow_record as delete_borrow_record_db
 
 
@@ -152,7 +153,7 @@ def view_all_members_who_borrowed_a_specific_book():
             book = find_book_by_isbn(db, isbn)
         elif search_option == "2":
             title = input("Enter book title: ")
-            book = find_book_by_title(db, title)
+            book = find_books_by_title(db, title)
         else:
             print("Invalid Option.")
             return
@@ -228,6 +229,7 @@ def register_member():
         db.close()
 
 
+
 def delete_member():
     # prompt for member identifiers and delete them from the database
     member_id = input("Enter the member ID to delete: ")
@@ -244,6 +246,7 @@ def delete_member():
         db.close()
 
 
+
 def view_all_members():
     # display all members from the database
     db = SessionLocal()
@@ -253,7 +256,6 @@ def view_all_members():
             print(f"{member.id}: {member.name} - {member.email}")
     finally:
         db.close()
-
 
 def find_member():
     # prompt user to enter search criteria (membership number, name, email )
@@ -281,6 +283,7 @@ def find_member():
         print("Invalid input.")
     finally:
         db.close()
+
 
 
 def find_all_books_borrowed_by_member():
@@ -318,15 +321,15 @@ def manage_borrow_records():
         choice = input("Enter your choice (1-6): ")
 
         if choice == "1":
-            create_borrow_record()
+            create_borrow_record_cli()
         elif choice == "2":
-            delete_borrow_record()
+            delete_borrow_record_cli()
         elif choice == "3":
-            view_all_borrow_records()
+            view_all_borrow_records_cli()
         elif choice == "4":
-            view_books_borrowed_by_member()
+            view_books_borrowed_by_member_cli()
         elif choice == "5":
-            view_members_who_borrowed_book()
+            view_members_who_borrowed_book_cli()
         elif choice == "6":
             break
         else:
@@ -334,23 +337,79 @@ def manage_borrow_records():
 
 
 def create_borrow_record():
-    print("create Borrow Record functionality not yet implemented")
+    book_id = input("Enter book ID: ")
+    member_id = input("Enter member ID: ")
+
+    db = SessionLocal()
+    try:
+        create_borrow_record(
+            db,
+            {
+                "book_id": int(book_id),
+                "member_id": int(member_id),
+                # "return_date": You can add this if you want to set a return date upon record creation
+            },
+        )
+        print("Borrow record created successfully.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        db.close()
 
 
 def delete_borrow_record():
-    print("delete Borrow Record functionality not yet implemented")
+    record_id = input("Enter the borrow record ID to delete: ")
+
+    db = SessionLocal()
+    try:
+        if delete_borrow_record(db, int(record_id)):
+            print("Borrow record deleted successfully.")
+        else:
+            print("Borrow record not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        db.close()
 
 
 def view_all_borrow_records():
-    print("View All Borrow Records functionality not yet implemented")
+    db = SessionLocal()
+    try:
+        records = get_all_borrow_records(db)
+        for record in records:
+            print(
+                f"Record ID: {record.id}, Book ID: {record.book_id}, Member ID: {record.member_id}"
+            )
+    finally:
+        db.close()
 
 
 def view_books_borrowed_by_member():
-    print("View Books Borrowed by a Member functionality not yet implemented")
+    member_id = input("Enter member ID: ")
+
+    db = SessionLocal()
+    try:
+        records = get_borrow_records_by_member_id(db, int(member_id))
+        for record in records:
+            print(
+                f"Book ID: {record.book_id}, Borrow Date: {record.borrow_date}, Return Date: {record.return_date}"
+            )
+    finally:
+        db.close()
 
 
 def view_members_who_borrowed_book():
-    print("View Members Who Borrowed a Book functionality not yet implemented")
+    book_id = input("Enter book ID: ")
+
+    db = SessionLocal()
+    try:
+        records = get_borrow_records_by_book_id(db, int(book_id))
+        for record in records:
+            print(
+                f"Member ID: {record.member_id}, Borrow Date: {record.borrow_date}, Return Date: {record.return_date}"
+            )
+    finally:
+        db.close()
 
 
 if __name__ == "__main__":
