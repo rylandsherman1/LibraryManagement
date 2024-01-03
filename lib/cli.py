@@ -1,3 +1,6 @@
+from Book import create_book
+from sqlalchemy.orm import Session
+from database import SessionLocal
 
 
 
@@ -54,16 +57,78 @@ def manage_books():
 
 def add_book():
     #prompt for book details and add to the database
-    print("Add Book functionality not yet implemented")
+    print("Adding a new book: ")
+    title = input("Enter book title: ")
+    author = input("Enter author name: ")
+    isbn = input("Enter ISBN: ")
+    available_copies = input("Enter number of available copies: ")
+    
+    book_data = {
+        'title': title,
+        'author': author,
+        'isbn': isbn,
+        'available_copies': available_copies,
+    }
+    
+    db = SessionLocal()
+    try:
+        new_book = create_book(db, book_data)
+        print(f"Book added {new_book.title} by {new_book.author}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        db.close()
+        
 def delete_book():
     #prompt for book identifiers and delete it from the database
-    print("Delete Book functionality not yet implemented")
+    book_id = input("Enter the book ID to delete: ")
+    db = SessionLocal()
+    try:
+        if delete_book(db, int(book_id)):
+            print("Book deleted from database.")
+        else:
+            print("Book not found.")
+    except ValueError:
+        print("Invalid input. Please enter a valid book ID.")
+    finally:
+        db.close()
+    
+    
 def view_all_books():
     #display all books from the database
-    print("View All Books functionality not yet implemented")
+    db = SessionLocal()
+    try:
+        books = get_all_books(db)
+        for book in books:
+            print(f"{book.id}: {book.title} by {book.author}")
+    finally:
+        db.close()    
+    
 def find_book():
     #prompt user to enter search criteria (ISBN, title, author )
-    print("Find Book functionality not yet implemented")
+    search_option = input("Search by (1) ID or (2) ISBN: ")
+    db = SessionLocal()
+    try:
+        if search_option == '1':
+            book_id = input("Enter book ID: ")
+            book = find_book_by_id(db, int(book_id))
+        elif search_option == '2':
+            isbn = input("Enter ISBN: ")
+            book = find_book_by_(db, isbn)
+        else:
+            print("Invalid option.")
+            return
+
+        if book:
+            print(f"Found Book: {book.title} by {book.author}")
+        else:
+            print("No book found with the given criteria.")
+    except ValueError:
+        print("invalid input.")
+    finally:
+        db.close()
+    
+    
 def view_all_members_who_borrowed_a_specific_book():
     #prompt user to enter search criteria (ISBN, title, author )
     print("View All Members Who Borrowed A Specific Book functionality not yet implemented")
