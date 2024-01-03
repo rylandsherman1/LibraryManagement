@@ -14,8 +14,8 @@ Base = declarative_base()
 
 
 def init_db():
-    import Book
-    import Member
-    import BorrowRecord
+    from .models.Book import Book
+    from .models.Members import Member
+    from .models.BorrowRecord import BorrowRecord
 
     Base.metadata.create_all(bind=engine)
