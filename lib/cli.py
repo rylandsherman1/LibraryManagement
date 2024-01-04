@@ -17,10 +17,12 @@ from .models.Book import (
     find_books_by_title,
     find_books_by_author,
 )
-from .models.BorrowRecord import get_borrow_records_by_book_id
+from .models.BorrowRecord import get_borrow_records_by_book_id, get_borrow_records_by_member_id
 
 from .models.Book import delete_book as delete_book_db
 from .models.BorrowRecord import delete_borrow_record as delete_borrow_record_db
+
+import random
 
 
 def main_menu():
@@ -218,7 +220,7 @@ def manage_members():
         print("1. Add a new member")
         print("2. Delete a member")
         print("3. View all members")
-        print("4. Find a member (by membership number, name, email)")
+        print("4. Find a member (by membership ID, name, email)")
         print("5. Find All Books Borrowed by Member")
         print("6. Return to main menu")
 
@@ -240,14 +242,26 @@ def manage_members():
             print("Invalid choice, please choose a number between 1-5.")
 
 
+def generate_membership_number():
+    return random.randint(10000000, 99999999)
+
+
 def register_member():
     # prompt for member details and add to the database
     print("Register New Member: ")
-    name = input("Enter Member's Name: ")
-    email = input("Enter Member's Email: ")
-    membership_number = input(
-        "Enter membership number: "
-    )  # should this be automatically generated?
+    while True:
+        name = input("Enter Member's Name: ")
+        if len(name) > 0:
+            break
+        print("Name cannot be blank. Please enter a valid name.")
+
+    while True:
+        email = input("Enter Member's Email: ")
+        if len(email) > 0:
+            break
+        print("Email cannot be blank. Please enter a valid email.")
+
+    membership_number = generate_membership_number()
 
     member_data = {
         "name": name,
@@ -258,7 +272,9 @@ def register_member():
     db = SessionLocal()
     try:
         new_member = create_member_db(db, member_data)
-        print(f"Member added: {new_member.name} with email {new_member.email}")
+        print(
+            f"Member added: {new_member.name} with email {new_member.email} and membership number {new_member.membership_number}"
+        )
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
@@ -298,22 +314,37 @@ def find_member():
     db = SessionLocal()
     try:
         if search_option == "1":
-            member_id = input("Enter memver ID: ")
+            member_id = input("Enter ID: ")
             member = find_member_by_id(db, int(member_id))
+            if member:
+                print(f"Found Member: {member.name} with email {member.email}")
+            else:
+                print("No member found with the given ID.")
+
         elif search_option == "2":
             name = input("Enter member name: ")
-            member = find_member_by_name(db, name)
+            members = find_member_by_name(db, name)
+            if members:
+                print(f"Members found with the name '{name}':")
+                for member in members:
+                    print(
+                        f"- Member ID: {member.id}, Name: {member.name}, Email: {member.email}"
+                    )
+            else:
+                print(f"No members found with the name '{name}'.")
+
         elif search_option == "3":
             email = input("Enter member email: ")
             member = find_member_by_email(db, email)
+            if member:
+                print(f"Found Member: {member.name} with email {member.email}")
+            else:
+                print("No member found with the given email.")
+
         else:
             print("Invalid option.")
             return
 
-        if member:
-            print(f"Found Member: {member.name} with email {member.email}")
-        else:
-            print("No member found with the given criteria.")
     except ValueError:
         print("Invalid input.")
     finally:
@@ -325,7 +356,7 @@ def find_all_books_borrowed_by_member():
     member_id = input("Enter the member ID: ")
     db = SessionLocal()
     try:
-        borrow_records = get_borrow_records_by_member_id(db, int(member.id))
+        borrow_records = get_borrow_records_by_member_id(db, int(member_id))
         if borrow_records:
             print(f"Books borrowed by Member ID {member_id}: ")
             for record in borrow_records:
