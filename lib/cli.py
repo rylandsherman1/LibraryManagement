@@ -13,6 +13,9 @@ from .models.Book import (
     find_books_by_title,
     create_book,
     get_all_books,
+    find_book_by_id,
+    find_books_by_title,
+    find_books_by_author,
 )
 from .models.BorrowRecord import get_borrow_records_by_book_id
 
@@ -126,15 +129,39 @@ def view_all_books():
 
 def find_book():
     # prompt user to enter search criteria (ISBN, title, author )
-    search_option = input("Search by (1) ID or (2) ISBN: ")
+    search_option = input("Search by (1) ID or (2) ISBN or (3) Title or (4) Author: ")
     db = SessionLocal()
     try:
         if search_option == "1":
             book_id = input("Enter book ID: ")
             book = find_book_by_id(db, int(book_id))
+            if book:
+                print(f"Found Book: {book.title} by {book.author}")
+            else:
+                print("No book found with the given ID.")
         elif search_option == "2":
             isbn = input("Enter ISBN: ")
-            book = find_book_by_(db, isbn)
+            book = find_book_by_isbn(db, isbn)
+            if book:
+                print(f"Found Book: {book.title} by {book.author}")
+            else:
+                print("No book found with the given ISBN.")
+        elif search_option == "3":
+            title = input("Enter Title: ")
+            books = find_books_by_title(db, title)
+            if books:
+                for book in books:
+                    print(f"Found Book: {book.title} by {book.author}")
+            else:
+                print("No books found with the given title.")
+        elif search_option == "4":
+            author = input("Enter Author: ")
+            books = find_books_by_author(db, author)
+            if books:
+                for book in books:
+                    print(f"Found Book: {book.title} by {book.author}")
+            else:
+                print("No books found with the given author.")
         else:
             print("Invalid option.")
             return
