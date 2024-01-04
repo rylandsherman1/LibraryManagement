@@ -17,7 +17,10 @@ from .models.Book import (
     find_books_by_title,
     find_books_by_author,
 )
-from .models.BorrowRecord import get_borrow_records_by_book_id, get_borrow_records_by_member_id
+from .models.BorrowRecord import (
+    get_borrow_records_by_book_id,
+    get_borrow_records_by_member_id,
+)
 
 from .models.Book import delete_book as delete_book_db
 from .models.BorrowRecord import delete_borrow_record as delete_borrow_record_db
@@ -71,7 +74,7 @@ def manage_books():
         elif choice == "4":
             find_book()
         elif choice == "5":
-            view_all_members_who_borrowed_a_specific_book
+            view_all_members_who_borrowed_a_specific_book()
         elif choice == "6":
             break
         else:
@@ -81,10 +84,31 @@ def manage_books():
 def add_book():
     # prompt for book details and add to the database
     print("Adding a new book: ")
-    title = input("Enter book title: ")
-    author = input("Enter author name: ")
-    isbn = input("Enter ISBN: ")
-    available_copies = input("Enter number of available copies: ")
+    while True:
+        title = input("Enter book title: ")
+        if len(title) > 0:
+            break
+        print("Book title cannot be blank. Please enter a valid title.")
+
+    while True:
+        author = input("Enter author name: ")
+        if len(title) > 0:
+            break
+        print("Author cannot be blank. Please enter a valid author")
+
+    while True:
+        isbn = input("Enter ISBN: ")
+        if len(isbn) > 0:
+            break
+        print("ISBN cannot be blank. Please eneter a valid ISBN.")
+
+    while True:
+        available_copies = input("Enter number of available copies: ")
+        if available_copies.isdigit() and int(available_copies) >= 0:
+            break
+        print(
+            "Number of available copies must be a non-negative integer. Please enter a valid number"
+        )
 
     book_data = {
         "title": title,
@@ -124,7 +148,9 @@ def view_all_books():
     try:
         books = get_all_books(db)
         for book in books:
-            print(f"{book.id}: {book.title} by {book.author}")
+            print(
+                f"{book.id}: {book.title} by {book.author} ISBN: {book.isbn}  Available: {book.available_copies}"
+            )
     finally:
         db.close()
 
@@ -138,14 +164,18 @@ def find_book():
             book_id = input("Enter book ID: ")
             book = find_book_by_id(db, int(book_id))
             if book:
-                print(f"Found Book: {book.title} by {book.author}")
+                print(
+                    f"Found Book: {book.title} by {book.author} ISBN: {book.isbn}  Available: {book.available_copies}"
+                )
             else:
                 print("No book found with the given ID.")
         elif search_option == "2":
             isbn = input("Enter ISBN: ")
             book = find_book_by_isbn(db, isbn)
             if book:
-                print(f"Found Book: {book.title} by {book.author}")
+                print(
+                    f"Found Book: {book.title} by {book.author} ISBN: {book.isbn}  Available: {book.available_copies}"
+                )
             else:
                 print("No book found with the given ISBN.")
         elif search_option == "3":
@@ -153,7 +183,9 @@ def find_book():
             books = find_books_by_title(db, title)
             if books:
                 for book in books:
-                    print(f"Found Book: {book.title} by {book.author}")
+                    print(
+                        f"Found Book: {book.title} by {book.author} ISBN: {book.isbn}  Available: {book.available_copies}"
+                    )
             else:
                 print("No books found with the given title.")
         elif search_option == "4":
@@ -161,17 +193,15 @@ def find_book():
             books = find_books_by_author(db, author)
             if books:
                 for book in books:
-                    print(f"Found Book: {book.title} by {book.author}")
+                    print(
+                        f"Found Book: {book.title} by {book.author} ISBN: {book.isbn}  Available: {book.available_copies}"
+                    )
             else:
                 print("No books found with the given author.")
         else:
             print("Invalid option.")
             return
 
-        if book:
-            print(f"Found Book: {book.title} by {book.author}")
-        else:
-            print("No book found with the given criteria.")
     except ValueError:
         print("invalid input.")
     finally:
@@ -211,7 +241,7 @@ def view_all_members_who_borrowed_a_specific_book():
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
-        db.close
+        db.close()
 
 
 def manage_members():
@@ -224,7 +254,7 @@ def manage_members():
         print("5. Find All Books Borrowed by Member")
         print("6. Return to main menu")
 
-        choice = input("Enter your choice (1-5): ")
+        choice = input("Enter your choice (1-6): ")
 
         if choice == "1":
             register_member()
@@ -239,7 +269,7 @@ def manage_members():
         elif choice == "6":
             break
         else:
-            print("Invalid choice, please choose a number between 1-5.")
+            print("Invalid choice, please choose a number between 1-6.")
 
 
 def generate_membership_number():

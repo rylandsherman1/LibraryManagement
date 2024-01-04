@@ -7,7 +7,7 @@ def main():
     # Initialize the database
     init_db()
     
-    seed_main()
+    # seed_main()
 
     # Start the CLI interface
     main_menu()
