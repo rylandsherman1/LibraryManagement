@@ -559,17 +559,35 @@ def view_all_borrow_records():
         records = get_all_borrow_records(db)
         if records:
             # Print table headers
-            print("{:<10} {:<10} {:<10}".format("Record ID", "Book ID", "Member ID"))
-            print("-" * 30)  # Separator line
+            print(
+                "{:<10} {:<30} {:<30} {:<10} {:<10}".format(
+                    "Record ID", "Book Title", "Member Name", "Book ID", "Member ID"
+                )
+            )
+            print("-" * 90)  # Separator line
 
             for record in records:
+                # Fetch book and member details
+                book = find_book_by_id(db, record.book_id) if record.book_id else None
+                member = (
+                    find_member_by_id(db, record.member_id)
+                    if record.member_id
+                    else None
+                )
+
                 # Check if any value is None and replace it with a placeholder
                 record_id = record.id if record.id is not None else "N/A"
+                book_title = book.title if book else "N/A"
+                member_name = member.name if member else "N/A"
                 book_id = record.book_id if record.book_id is not None else "N/A"
                 member_id = record.member_id if record.member_id is not None else "N/A"
 
                 # Format each row of data
-                print("{:<10} {:<10} {:<10}".format(record_id, book_id, member_id))
+                print(
+                    "{:<10} {:<30} {:<30} {:<10} {:<10}".format(
+                        record_id, book_title, member_name, book_id, member_id
+                    )
+                )
         else:
             print("No borrow records found.")
     finally:
@@ -584,14 +602,20 @@ def view_books_borrowed_by_member():
         records = get_borrow_records_by_member_id(db, int(member_id))
         if records:
             # Print table headers
-            print("{:<10} {:<15} {:<15}".format("Book ID", "Borrow Date", "Return Date"))
+            print(
+                "{:<10} {:<15} {:<15}".format("Book ID", "Borrow Date", "Return Date")
+            )
             print("-" * 40)  # Separator line
 
             for record in records:
                 # Format each row of data
                 book_id = record.book_id if record.book_id is not None else "N/A"
-                borrow_date = record.borrow_date if record.borrow_date is not None else "N/A"
-                return_date = record.return_date if record.return_date is not None else "N/A"
+                borrow_date = (
+                    record.borrow_date if record.borrow_date is not None else "N/A"
+                )
+                return_date = (
+                    record.return_date if record.return_date is not None else "N/A"
+                )
 
                 print("{:<10} {:<15} {:<15}".format(book_id, borrow_date, return_date))
         else:
