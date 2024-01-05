@@ -1,6 +1,6 @@
 from .database import init_db, SessionLocal
 from .cli import main_menu
-from .seed import main as seed_main
+# from .seed import main as seed_main
 
 
 def main():
@@ -8,7 +8,6 @@ def main():
     init_db()
 
     # seed_main()
-
     # Start the CLI interface
     main_menu()
 
