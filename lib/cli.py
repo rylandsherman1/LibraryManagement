@@ -168,10 +168,28 @@ def view_all_books():
     db = SessionLocal()
     try:
         books = get_all_books(db)
-        for book in books:
+        if books:
+            # Print the table headers with specified width for each column
             print(
-                f"{book.id}: {book.title} by {book.author} ISBN: {book.isbn}  Available: {book.available_copies}"
+                "{:<5} {:<50} {:<40} {:<15} {:<10}".format(
+                    "ID", "Title", "Author", "ISBN", "Available"
+                )
             )
+            print("-" * 130)  # Separator line
+
+            for book in books:
+                # Format each row of the book data
+                print(
+                    "{:<5} {:<50} {:<40} {:<15} {:<10}".format(
+                        book.id,
+                        book.title,
+                        book.author,
+                        book.isbn,
+                        book.available_copies,
+                    )
+                )
+        else:
+            print("No books found.")
     finally:
         db.close()
 
@@ -357,8 +375,16 @@ def view_all_members():
     db = SessionLocal()
     try:
         members = get_all_members(db)
-        for member in members:
-            print(f"{member.id}: {member.name} - {member.email}")
+        if members:
+            print("{:<5} {:<20} {:<30}".format("ID", "Name", "Email"))
+            print("-" * 55)
+            for member in members:
+                print(
+                    "{:<5} {:<20} {:<30}".format(member.id, member.name, member.email)
+                )
+                # print(f"{member.id}: {member.name} - {member.email}")
+        else:
+            print("No members found")
     finally:
         db.close()
 
@@ -531,10 +557,21 @@ def view_all_borrow_records():
     db = SessionLocal()
     try:
         records = get_all_borrow_records(db)
-        for record in records:
-            print(
-                f"Record ID: {record.id}, Book ID: {record.book_id}, Member ID: {record.member_id}"
-            )
+        if records:
+            # Print table headers
+            print("{:<10} {:<10} {:<10}".format("Record ID", "Book ID", "Member ID"))
+            print("-" * 30)  # Separator line
+
+            for record in records:
+                # Check if any value is None and replace it with a placeholder
+                record_id = record.id if record.id is not None else "N/A"
+                book_id = record.book_id if record.book_id is not None else "N/A"
+                member_id = record.member_id if record.member_id is not None else "N/A"
+
+                # Format each row of data
+                print("{:<10} {:<10} {:<10}".format(record_id, book_id, member_id))
+        else:
+            print("No borrow records found.")
     finally:
         db.close()
 
@@ -545,12 +582,36 @@ def view_books_borrowed_by_member():
     db = SessionLocal()
     try:
         records = get_borrow_records_by_member_id(db, int(member_id))
-        for record in records:
-            print(
-                f"Book ID: {record.book_id}, Borrow Date: {record.borrow_date}, Return Date: {record.return_date}"
-            )
+        if records:
+            # Print table headers
+            print("{:<10} {:<15} {:<15}".format("Book ID", "Borrow Date", "Return Date"))
+            print("-" * 40)  # Separator line
+
+            for record in records:
+                # Format each row of data
+                book_id = record.book_id if record.book_id is not None else "N/A"
+                borrow_date = record.borrow_date if record.borrow_date is not None else "N/A"
+                return_date = record.return_date if record.return_date is not None else "N/A"
+
+                print("{:<10} {:<15} {:<15}".format(book_id, borrow_date, return_date))
+        else:
+            print("No records found for this member.")
     finally:
         db.close()
+
+
+# def view_books_borrowed_by_member():
+#     member_id = input("Enter member ID: ")
+
+#     db = SessionLocal()
+#     try:
+#         records = get_borrow_records_by_member_id(db, int(member_id))
+#         for record in records:
+#             print(
+#                 f"Book ID: {record.book_id}, Borrow Date: {record.borrow_date}, Return Date: {record.return_date}"
+#             )
+#     finally:
+#         db.close()
 
 
 def view_members_who_borrowed_book():
