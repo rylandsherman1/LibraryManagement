@@ -76,6 +76,11 @@ def main_menu():
 def manage_books():
     # Implementation for managing books
     while True:
+        print("  __  __                           ___           _       ")
+        print(" |  \/  |__ _ _ _  __ _ __ _ ___  | _ ) ___  ___| |__ ___")
+        print(" | |\/| / _` | ' \/ _` / _` / -_) | _ \/ _ \/ _ \ / /(_-<")
+        print(" |_|  |_\__,_|_||_\__,_\__, \___| |___/\___/\___/_\_\/__/")
+        print("                       |___/                             ")
         print("\nManage Books\n")
         print("1. Add a new book")
         print("2. Delete a new book")
@@ -289,6 +294,11 @@ def display_borrow_records_for_book(db, book):
 
 def manage_members():
     while True:
+        print("  __  __                           __  __           _                ")
+        print(" |  \/  |__ _ _ _  __ _ __ _ ___  |  \/  |___ _ __ | |__  ___ _ _ ___")
+        print(" | |\/| / _` | ' \/ _` / _` / -_) | |\/| / -_) '  \| '_ \/ -_) '_(_-<")
+        print(" |_|  |_\__,_|_||_\__,_\__, \___| |_|  |_\___|_|_|_|_.__/\___|_| /__/")
+        print("                       |___/                                         ")
         print("\nManage Members\n")
         print("1. Add a new member")
         print("2. Delete a member")
@@ -456,6 +466,11 @@ def find_all_books_borrowed_by_member():
 def manage_borrow_records():
     # Implementation for managing borrow_records
     while True:
+        print("  __  __                           ___                           ___                   _    ")
+        print(" |  \/  |__ _ _ _  __ _ __ _ ___  | _ ) ___ _ _ _ _ _____ __ __ | _ \___ __ ___ _ _ __| |___")
+        print(" | |\/| / _` | ' \/ _` / _` / -_) | _ \/ _ \ '_| '_/ _ \ V  V / |   / -_) _/ _ \ '_/ _` (_-<")
+        print(" |_|  |_\__,_|_||_\__,_\__, \___| |___/\___/_| |_| \___/\_/\_/  |_|_\___\__\___/_| \__,_/__/")
+        print("                       |___/                                                                ")
         print("\nManage Borrow Records\n")
         print("1. Create a new borrow record")
         print("2. Delete a borrow record")
