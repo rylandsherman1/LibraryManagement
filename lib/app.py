@@ -6,7 +6,7 @@ from .seed import main as seed_main
 def main():
     # Initialize the database
     init_db()
-    
+
     # seed_main()
 
     # Start the CLI interface
