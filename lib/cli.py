@@ -6,7 +6,6 @@ from .models.Members import (
     find_member_by_name,
     find_member_by_email,
 )
-from sqlalchemy.orm import Session
 from .database import SessionLocal
 from .models.Book import (
     find_book_by_isbn,
@@ -21,6 +20,7 @@ from .models.BorrowRecord import (
     get_borrow_records_by_book_id,
     get_all_borrow_records,
     get_borrow_records_by_member_id,
+    BorrowRecord,
     delete_borrow_record as delete_borrow_record_func,  # Renamed import
     create_borrow_record as create_borrow_record_func,  # Renamed import
 )
@@ -33,6 +33,24 @@ import random
 
 def main_menu():
     while True:
+        print("  _      _ _                                                   ")
+        print(" | |    (_) |                                                  ")
+        print(" | |     _| |__  _ __ __ _ _ __ _   _                          ")
+        print(" | |    | | '_ \| '__/ _` | '__| | | |                         ")
+        print(" | |____| | |_) | | | (_| | |  | |_| |                         ")
+        print(" |______|_|_.__/|_|  \__,_|_|   \__, |                     _   ")
+        print(" |  \/  |                        __/ |                    | |  ")
+        print(" | \  / | __ _ _ __   __ _  __ _|___/ _ __ ___   ___ _ __ | |_ ")
+        print(" | |\/| |/ _` | '_ \ / _` |/ _` |/ _ \ '_ ` _ \ / _ \ '_ \| __|")
+        print(" | |  | | (_| | | | | (_| | (_| |  __/ | | | | |  __/ | | | |_ ")
+        print(" |_|__|_|\__,_|_| |_|\__,_|\__, |\___|_| |_| |_|\___|_| |_|\__|")
+        print("  / ____|         | |       __/ |                              ")
+        print(" | (___  _   _ ___| |_ ___ |___/___                            ")
+        print("  \___ \| | | / __| __/ _ \ '_ ` _ \                           ")
+        print("  ____) | |_| \__ \ ||  __/ | | | | |                          ")
+        print(" |_____/ \__, |___/\__\___|_| |_| |_|                          ")
+        print("          __/ |                                                ")
+        print("         |___/                                                 ")
         print("\nWelcome to the Library Management System!\n")
         print("Please choose an option:")
         print("1. Manage Books")
@@ -212,7 +230,6 @@ def find_book():
 
 
 def view_all_members_who_borrowed_a_specific_book():
-    # prompt user to enter search criteria (ISBN, title, author )
     print("\nView All Members Who Borrowed A Specific Book")
 
     search_option = input("search by (1) ISBN or (2) Title: ")
@@ -222,29 +239,34 @@ def view_all_members_who_borrowed_a_specific_book():
         if search_option == "1":
             isbn = input("Enter ISBN: ")
             book = find_book_by_isbn(db, isbn)
+            if book:
+                display_borrow_records_for_book(db, book)
+            else:
+                print("No book found with the given ISBN.")
         elif search_option == "2":
             title = input("Enter book title: ")
-            book = find_books_by_title(db, title)
+            books = find_books_by_title(db, title)
+            if books:
+                for book in books:
+                    display_borrow_records_for_book(db, book)
+            else:
+                print("No books found with the given title.")
         else:
             print("Invalid Option.")
-            return
-
-        if book:
-            borrow_records = get_borrow_records_by_book_id(db, book.id)
-            if borrow_records:
-                print(f"\nMembers who borrowed '{book.title}':")
-                for record in borrow_records:
-                    print(
-                        f"Member ID: {record.member.id} | Borrow Date: {record.borrow_date}"
-                    )
-            else:
-                print("No borrow recrods found for this book.")
-        else:
-            print("No book found with the given criteria.")
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
         db.close()
+
+
+def display_borrow_records_for_book(db, book):
+    borrow_records = get_borrow_records_by_book_id(db, book.id)
+    if borrow_records:
+        print(f"\nMembers who borrowed '{book.title}':")
+        for record in borrow_records:
+            print(f"Member ID: {record.member.id} | Borrow Date: {record.borrow_date}")
+    else:
+        print("No borrow records found for this book.")
 
 
 def manage_members():
@@ -440,14 +462,26 @@ def create_borrow_record():
 
     db = SessionLocal()
     try:
-        borrow_data = {
-            "book_id": int(book_id),
-            "member_id": int(member_id),
-        }
-        create_borrow_record_func(db, borrow_data)  # Using the renamed function
-        print("Borrow record created successfully.")
+        book = find_book_by_id(db, int(book_id))
+        if book and book.available_copies > 0:
+            borrow_data = {
+                "book_id": int(book_id),
+                "member_id": int(member_id),
+            }
+            created_record = create_borrow_record_func(
+                db, borrow_data
+            )  # Using the renamed function
+
+            # Decrease the number of available copies
+            book.available_copies -= 1
+            db.commit()
+
+            print("Borrow record created successfully.")
+        else:
+            print("Book is not available for borrowing.")
     except Exception as e:
         print(f"An error occurred: {e}")
+        db.rollback()
     finally:
         db.close()
 
@@ -457,12 +491,37 @@ def delete_borrow_record():
 
     db = SessionLocal()
     try:
-        if delete_borrow_record_func(db, int(record_id)):  # Using the renamed function
-            print("Borrow record deleted successfully.")
+        # Retrieve the borrow record
+        borrow_record = (
+            db.query(BorrowRecord).filter(BorrowRecord.id == int(record_id)).first()
+        )
+
+        if borrow_record:
+            book_id = borrow_record.book_id
+            book = find_book_by_id(db, book_id)
+
+            if book:
+                # Deleting the borrow record
+                if delete_borrow_record_func(
+                    db, int(record_id)
+                ):  # Using the renamed function
+                    print("Borrow record deleted successfully.")
+
+                    # Increase the number of available copies
+                    book.available_copies += 1
+                    db.commit()
+                    print(
+                        f"Updated available copies for book ID {book_id}. New count: {book.available_copies}"
+                    )
+                else:
+                    print("Borrow record not found.")
+            else:
+                print(f"No book found for book ID {book_id}.")
         else:
             print("Borrow record not found.")
     except Exception as e:
         print(f"An error occurred: {e}")
+        db.rollback()
     finally:
         db.close()
 
