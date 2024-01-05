@@ -468,15 +468,16 @@ def create_borrow_record():
                 "book_id": int(book_id),
                 "member_id": int(member_id),
             }
-            created_record = create_borrow_record_func(
-                db, borrow_data
-            )  # Using the renamed function
+            created_record = create_borrow_record_func(db, borrow_data)
 
             # Decrease the number of available copies
             book.available_copies -= 1
             db.commit()
 
             print("Borrow record created successfully.")
+            print(
+                f"Updated available copies for book ID {book_id}. New count: {book.available_copies}"
+            )
         else:
             print("Book is not available for borrowing.")
     except Exception as e:
